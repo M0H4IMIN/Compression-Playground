@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visual File Compression Playground</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <rect x="1" y="1" width="20" height="20" rx="5" stroke="#534AB7" stroke-width="1.5"/>
+        <rect x="4" y="6" width="6" height="2" rx="1" fill="#534AB7"/>
+        <rect x="4" y="10" width="10" height="2" rx="1" fill="#534AB7" opacity=".6"/>
+        <rect x="4" y="14" width="8" height="2" rx="1" fill="#534AB7" opacity=".35"/>
+        <rect x="13" y="6" width="5" height="2" rx="1" fill="#1D9E75"/>
+        <rect x="16" y="10" width="2" height="2" rx="1" fill="#1D9E75" opacity=".6"/>
+      </svg>
+      Compression Playground
+    </div>
+    <div class="header-sub">OS Course — Live Algorithm Visualizer</div>
+  </div>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('rle')">RLE</button>
+    <button class="tab" onclick="switchTab('huffman')">Huffman</button>
+    <button class="tab" onclick="switchTab('lz77')">LZ77</button>
+    <button class="tab" onclick="switchTab('compare')">Compare all</button>
+  </div>
+
+  <!-- ── RLE ─────────────────────────────────────────── -->
+  <div class="panel active" id="panel-rle">
+    <div class="grid2">
+      <div class="card">
+        <div class="label">Input text</div>
+        <textarea id="rle-input" oninput="runRLE()" placeholder="Try: AAABBBCCDDDDEE">AAABBBCCDDDDEEEEEFG</textarea>
+        <div class="stats-row">
+          <div class="stat"><div class="val" id="rle-orig">—</div><div class="lbl">original chars</div></div>
+          <div class="stat"><div class="val" id="rle-comp">—</div><div class="lbl">encoded tokens</div></div>
+          <div class="stat"><div class="val" id="rle-ratio">—</div><div class="lbl">ratio</div></div>
+        </div>
+        <div class="ratio-bar"><div class="ratio-fill" id="rle-bar" style="width:0%"></div></div>
+        <div class="hint">Fill = how much smaller (green = good, orange = worse than original)</div>
+      </div>
+      <div class="card">
+        <div class="section-title">How RLE works</div>
+        <p class="desc">RLE replaces a run of identical characters with a (count, char) pair. Best for data with long repeated runs — like bitmap images or fax data. It can make things <em>worse</em> for varied text.</p>
+        <div style="margin-top:12px">
+          <div class="label">Color legend</div>
+          <div class="legend">
+            <span><span class="swatch" style="background:#5DCAA5;border-color:#0F6E56"></span>Run chars</span>
+            <span><span class="swatch neutral"></span>Singles</span>
+            <span><span class="swatch" style="background:#E6F1FB;border-color:#185FA5"></span>Count token</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem">
+      <div class="section-title">Input chars — grouped by runs</div>
+      <div class="rle-chars" id="rle-chars-vis"></div>
+      <div class="rle-step">Encoded output <span class="badge" id="rle-enc-len"></span></div>
+      <div class="rle-encoded" id="rle-enc-vis"></div>
+    </div>
+  </div>
+
+  <!-- ── Huffman ──────────────────────────────────────── -->
+  <div class="panel" id="panel-huffman">
+    <div class="grid2">
+      <div class="card">
+        <div class="label">Input text</div>
+        <textarea id="huff-input" oninput="runHuffman()" placeholder="Try: hello world">hello world</textarea>
+        <div class="stats-row">
+          <div class="stat"><div class="val" id="huff-orig">—</div><div class="lbl">original bits</div></div>
+          <div class="stat"><div class="val" id="huff-comp">—</div><div class="lbl">encoded bits</div></div>
+          <div class="stat"><div class="val" id="huff-ratio">—</div><div class="lbl">ratio</div></div>
+        </div>
+        <div class="ratio-bar"><div class="ratio-fill" id="huff-bar" style="width:0%"></div></div>
+      </div>
+      <div class="card">
+        <div class="section-title">How Huffman works</div>
+        <p class="desc">Huffman builds a binary tree: frequent chars get short codes, rare chars get long codes. The code table is built fresh per input — it's provably optimal for that specific character distribution.</p>
+        <p class="desc" style="margin-top:6px;font-size:11px;color:#888">Click any row in the table to highlight it in the tree.</p>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:1rem">
+      <div class="card">
+        <div class="section-title">Code table</div>
+        <table class="huff-table">
+          <thead><tr><th>Char</th><th>Freq</th><th>Frequency</th><th>Code</th><th>Bits</th></tr></thead>
+          <tbody id="huff-tbody"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="section-title">Huffman tree</div>
+        <svg id="huff-tree" viewBox="0 0 340 260" style="width:100%;overflow:visible"></svg>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem">
+      <div class="section-title">Encoded bitstream <span style="font-size:11px;font-weight:400;color:#888">(each char's bits underlined)</span></div>
+      <div id="huff-bits"></div>
+    </div>
+  </div>
+
+  <!-- ── LZ77 ────────────────────────────────────────── -->
+  <div class="panel" id="panel-lz77">
+    <div class="grid2">
+      <div class="card">
+        <div class="label">Input text</div>
+        <textarea id="lz-input" oninput="runLZ77()" placeholder="Try repeated phrases…">abracadabra abracadabra</textarea>
+        <div class="stats-row">
+          <div class="stat"><div class="val" id="lz-orig">—</div><div class="lbl">original chars</div></div>
+          <div class="stat"><div class="val" id="lz-toks">—</div><div class="lbl">tokens</div></div>
+          <div class="stat"><div class="val" id="lz-ratio">—</div><div class="lbl">ratio</div></div>
+        </div>
+        <div class="ratio-bar"><div class="ratio-fill" id="lz-bar" style="width:0%"></div></div>
+        <div class="speed-row">
+          <span>Window size</span>
+          <input type="range" min="4" max="20" value="10" id="lz-win"
+                 oninput="document.getElementById('lz-win-v').textContent=this.value;runLZ77()">
+          <span id="lz-win-v">10</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">How LZ77 works</div>
+        <p class="desc">LZ77 maintains a sliding window. For each position it looks back in the buffer for the longest match. A match emits (offset, length, next char). This is the basis of gzip, deflate, and zstd.</p>
+        <div style="margin-top:10px">
+          <div class="label">Token legend</div>
+          <div class="legend">
+            <span><span class="swatch" style="background:#E6F1FB;border-color:#185FA5"></span>Offset</span>
+            <span><span class="swatch" style="background:#EEEDFE;border-color:#534AB7"></span>Length</span>
+            <span><span class="swatch" style="background:#E1F5EE;border-color:#0F6E56"></span>Next char</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem">
+      <div class="section-title">Token stream <span style="font-size:11px;font-weight:400;color:#888">— click any token to inspect its window state</span></div>
+      <div class="lz-stream" id="lz-stream"></div>
+    </div>
+    <div class="card" style="margin-top:1rem">
+      <div class="section-title">Sliding window state</div>
+      <div class="speed-row">
+        <span>Step</span>
+        <input type="range" min="0" value="0" id="lz-step" oninput="renderLZStep(this.value)">
+        <span id="lz-step-v" style="min-width:30px">0</span>
+      </div>
+      <div class="lz-window" id="lz-window-vis"></div>
+    </div>
+  </div>
+
+  <!-- ── Compare ──────────────────────────────────────── -->
+  <div class="panel" id="panel-compare">
+    <div class="card" style="margin-bottom:1rem">
+      <div class="label">Input text (shared across all algorithms)</div>
+      <textarea id="cmp-input" oninput="runCompare()" style="height:70px"
+        placeholder="Type text to compare all algorithms…">AAABBBCCDDDDEEEEEFGGG hello world abracadabra abracadabra</textarea>
+    </div>
+    <div id="cmp-cards"></div>
+    <div class="card" style="margin-top:1rem">
+      <div class="section-title">Compression ratio chart <span style="font-size:11px;font-weight:400;color:#888">(lower = better)</span></div>
+      <div style="position:relative;height:200px">
+        <canvas id="cmp-chart" role="img" aria-label="Bar chart comparing compression ratios of RLE, Huffman, and LZ77">
+          Compression ratio comparison: RLE, Huffman coding, and LZ77.
+        </canvas>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="algorithms.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
