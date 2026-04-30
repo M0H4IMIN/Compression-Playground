@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual File Compression Playground v2</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Visual File Compression Playground</h1>
+            <p class="subtitle">Interactive OS Course Project - File I/O + Memory Visualization</p>
+        </header>
+
+        <!-- File Upload Section -->
+        <section class="file-section">
+            <div class="file-input-wrapper">
+                <label for="fileUpload" class="upload-btn">
+                    <span>📁 Upload File</span>
+                    <input type="file" id="fileUpload" accept=".txt,.csv,.log,.json,.xml,.md" hidden>
+                </label>
+                <span id="fileName" class="file-name">No file selected</span>
+            </div>
+            <div class="file-info" id="fileInfo">
+                <span class="info-item">Size: <strong id="fileSize">0 B</strong></span>
+                <span class="info-item">Type: <strong id="fileType">-</strong></span>
+            </div>
+            <button id="downloadBtn" class="download-btn" disabled>
+                ⬇️ Download Compressed File
+            </button>
+        </section>
+
+        <!-- Tabs -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="rle">RLE</button>
+            <button class="tab-btn" data-tab="huffman">Huffman</button>
+            <button class="tab-btn" data-tab="lz77">LZ77</button>
+            <button class="tab-btn" data-tab="compare">Compare All</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- RLE Tab -->
+            <div class="tab-content active" id="rle-tab">
+                <div class="input-section">
+                    <textarea id="rle-input" placeholder="Type text here or upload a file..."></textarea>
+                    <div class="how-it-works">
+                        <h4>How RLE Works</h4>
+                        <p>Run-Length Encoding replaces consecutive repeated characters with a count and the character. "AAAABBB" becomes "4A3B".</p>
+                    </div>
+                </div>
+                <div class="stats-grid" id="rle-stats"></div>
+                <div class="visualization" id="rle-viz"></div>
+                <div class="memory-section">
+                    <h4>Memory Tracker</h4>
+                    <div class="memory-bars">
+                        <div class="memory-row">
+                            <span class="mem-label">Input Buffer</span>
+                            <div class="mem-bar-container">
+                                <div class="mem-bar" id="rle-mem-input" style="width: 0%"></div>
+                            </div>
+                            <span class="mem-value" id="rle-mem-input-val">0 B</span>
+                        </div>
+                        <div class="memory-row">
+                            <span class="mem-label">Working Memory</span>
+                            <div class="mem-bar-container">
+                                <div class="mem-bar" id="rle-mem-work" style="width: 0%"></div>
+                            </div>
+                            <span class="mem-value" id="rle-mem-work-val">0 B</span>
+                        </div>
+                        <div class="memory-row">
+                            <span class="mem-label">Output Buffer</span>
+                            <div class="mem-bar-container">
+                                <div class="mem-bar" id="rle-mem-output" style="width: 0%"></div>
+                            </div>
+                            <span class="mem-value" id="rle-mem-output-val">0 B</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Huffman Tab -->
+            <div class="tab-content" id="huffman-tab">
+                <div class="input-section">
+                    <textarea id="huffman-input" placeholder="Type text here or upload a file..."></textarea>
+                    <div class="how-it-works">
+                        <h4>How Huffman Works</h4>
+                        <p>Builds a binary tree based on character frequency. Common characters get shorter codes, rare ones get longer codes.</p>
+                    </div>
+                </div>
+                <div class="stats-grid" id="huffman-stats"></div>
+                <div class="visualization">
+                    <div class="huffman-container">
+                        <svg id="huffman-tree" class="tree-svg"></svg>
+                        <div class="code-table" id="huffman-codes"></div>
+                    </div>
+                    <div class="bitstream" id="huffman-bitstream"></div>
+                </div>
+                <div class="memory-section">
+                    <h4>Memory Tracker</h4>
+                    <div class="memory-bars">
+                        <div class="memory-row">
+                            <span class="mem-label">Input Buffer</span>
+                            <div class="mem-bar-container">
+                                <div class="mem-bar" id="huff-mem-input" style="width: 0%"></div>
+                            </div>
+                            <span class="mem-value" id="huff-mem-input-val">0 B</span>
+                        </div>
+                        <div class="memory-row">
+                            <span class="mem-label">Working Memory (Tree)</span>
+                            <div class="mem-bar-container">
+                                <div class="mem-bar" id="huff-mem-work" style="width: 0%"></div>
+                            </div>
+                            <span class="mem-value" id="huff-mem-work-val">0 B</span>
+                        </div>
+                        <div class="memory-row">
+                            <span class="mem-label">Output Buffer</span>
+                            <div class="mem-bar-container">
+                                <div class="mem-bar" id="huff-mem-output" style="width: 0%"></div>
+                            </div>
+                            <span class="mem-value" id="huff-mem-output-val">0 B</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LZ77 Tab -->
+            <div class="tab-content" id="lz77-tab">
+                <div class="input-section">
+                    <textarea id="lz77-input" placeholder="Type text here or upload a file..."></textarea>
+                    <div class="how-it-works">
+                        <h4>How LZ77 Works</h4>
+                        <p>Uses a sliding window to find repeated patterns. Instead of repeating data, it writes (offset, length, next_char) triples pointing back to earlier occurrences.</p>
+                    </div>
+                </div>
+                <div class="stats-grid" id="lz77-stats"></div>
+                <div class="visualization">
+                    <div class="lz77-container">
+                        <div class="step-control">
+                            <label>Step: <input type="range" id="lz77-step" min="0" value="0"></label>
+                            <span id="lz77-step-display">0 / 0</span>
+                        </div>
+                        <div class="sliding-window">
+                            <div class="window-section">
+                                <span class="section-label">Buffer (History)</span>
+                                <div class="window-content" id="lz77-buffer"></div>
+                            </div>
+                            <div class="window-section">
+                                <span class="section-label">Lookahead</span>
+                                <div class="window-content" id="lz77-lookahead"></div>
+                            </div>
+                        </div>
+                        <div class="token-stream" id="lz77-tokens"></div>
+                    </div>
+                </div>
+                <div class="memory-section">
+                    <h4>Memory Tracker</h4>
+                    <div class="memory-bars">
+                        <div class="memory-row">
+                            <span class="mem-label">Input Buffer</span>
+                            <div class="mem-bar-container">
+                                <div class="mem-bar" id="lz77-mem-input" style="width: 0%"></div>
+                            </div>
+                            <span class="mem-value" id="lz77-mem-input-val">0 B</span>
+                        </div>
+                        <div class="memory-row">
+                            <span class="mem-label">Working Memory (Window)</span>
+                            <div class="mem-bar-container">
+                                <div class="mem-bar" id="lz77-mem-work" style="width: 0%"></div>
+                            </div>
+                            <span class="mem-value" id="lz77-mem-work-val">0 B</span>
+                        </div>
+                        <div class="memory-row">
+                            <span class="mem-label">Output Buffer</span>
+                            <div class="mem-bar-container">
+                                <div class="mem-bar" id="lz77-mem-output" style="width: 0%"></div>
+                            </div>
+                            <span class="mem-value" id="lz77-mem-output-val">0 B</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compare Tab -->
+            <div class="tab-content" id="compare-tab">
+                <div class="input-section">
+                    <textarea id="compare-input" placeholder="Type text here or upload a file..."></textarea>
+                </div>
+                <div class="compare-container">
+                    <canvas id="compare-chart"></canvas>
+                    <div class="compare-stats" id="compare-stats"></div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>OS Course Project - Visual File Compression Playground</p>
+        </footer>
+    </div>
+
+    <script src="algorithms.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
