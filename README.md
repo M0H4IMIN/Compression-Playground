@@ -6,8 +6,6 @@
 
 > **An interactive, browser-based educational tool that visualizes file compression algorithms in real-time.** Built for Operating Systems course with **File I/O operations** and **Memory usage tracking** features.
 
-![Project Banner](./assets/banner.png)
-
 ---
 
 ## 🌟 Features
@@ -162,7 +160,7 @@ Each tab displays live memory usage bars:
 #### Huffman Coding
 - **Time Complexity:** O(n log n) — tree construction via sorting
 - **Space Complexity:** O(k) — where k is unique characters
-- **Mechanism:** 
+- **Mechanism:**
   1. Build frequency table in one pass
   2. Construct binary tree by merging lowest-frequency nodes
   3. Assign codes via recursive tree walk (0=left, 1=right)
@@ -281,7 +279,7 @@ Contributions are welcome! This is an educational project for OS courses.
 
 ## 📄 License
 
-This project is licensed under the MIT License — see below for details.
+This project is licensed under the MIT License.
 
 ```
 MIT License
@@ -325,12 +323,6 @@ SOFTWARE.
 - **Chart.js** — Bar chart visualization library
 - **Operating Systems Course** — Faculty guidance and project requirements
 - **Inspired by** — Classic compression algorithm visualizers and interactive educational tools
-
----
-
-## 📬 Contact
-
-For questions, feedback, or collaboration requests, please open an issue on GitHub or contact me directly.
 
 ---
 
