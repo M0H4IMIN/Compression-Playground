@@ -311,10 +311,10 @@ SOFTWARE.
 
 **S.M. MOHAIMIN**
 
-- GitHub: [@yourusername](https://github.com/yourusername)
+- GitHub: github.com/M0H4IMIN
 - Project: Visual File Compression Playground
-- Course: Operating Systems
-- Institution: [Your University]
+- Course: Operating Systems CSE 323
+- Institution: North South University
 
 ---
 
