@@ -183,22 +183,6 @@ LZ77:    Input = n×2B, Work = n×4B (window), Output = tokens×6B
 
 ---
 
-## 📸 Screenshots
-
-### RLE Visualization
-![RLE](./assets/screenshot-rle.png)
-
-### Huffman Tree + Bitstream
-![Huffman](./assets/screenshot-huffman.png)
-
-### LZ77 Sliding Window
-![LZ77](./assets/screenshot-lz77.png)
-
-### Algorithm Comparison
-![Compare](./assets/screenshot-compare.png)
-
----
-
 ## 🎓 Operating Systems Concepts Demonstrated
 
 | Concept | Implementation |
